@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding Studio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        :root {
+            --mainCol: #6366f1;
+            --hoverCol: #4f46e5;
+            --bgCol: #f8fafc;
+            --cardBg: #ffffff;
+            --textMain: #0f172a;
+            --textMute: #64748b;
+            --lineCol: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bgCol);
+            color: var(--textMain);
+            margin: 0;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .mainBox {
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap; 
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .leftSide {
+            flex: 1 1 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center; 
+            text-align: center;
+        }
+
+        .userPic {
+            width: 230px; 
+            height: 230px;
+            border-radius: 50%;
+            background-color: var(--mainCol);
+            margin-bottom: 1.2rem;
+            object-fit: cover;
+            object-position: center 15%; 
+            border: 4px solid var(--mainCol);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 6px;
+        }
+
+        h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+
+        .userBio {
+            color: var(--textMute);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+            text-align: left; 
+        }
+
+        .rightCard {
+            flex: 1 1 300px;
+            background-color: var(--cardBg);
+            border: 1px solid var(--lineCol);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        .cardTitle {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .titleIcon {
+            color: var(--mainCol);
+        }
+
+        .perkList {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 2rem 0;
+            color: var(--textMain);
+        }
+
+        .perkList li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-weight: 500;
+        }
+
+        .iconTeal { color: #0f766e; width: 20px; font-size: 1.1rem; text-align: center; }
+        .iconRed { color: #9f1239; width: 20px; font-size: 1.1rem; text-align: center; }
+        .iconBlue { color: #1e3a8a; width: 20px; font-size: 1.1rem; text-align: center; }
+        /* Added a new warm orange color for the coffee/survival icon */
+        .iconOrange { color: #ea580c; width: 20px; font-size: 1.1rem; text-align: center; }
+
+        .btnLink {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--mainCol);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+
+        .btnLink:hover {
+            background-color: var(--hoverCol);
+            transform: translateY(-2px);
+        }
+
+        .safeLock {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--textMute);
+            margin-top: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .mainBox {
+                gap: 2rem;
+            }
+            .leftSide {
+                text-align: center;
+                align-items: center;
+            }
+            .userBio {
+                text-align: center;
+            }
+            .rightCard {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mainBox">
+        
+        <div class="leftSide">
+            <img id="userImg" src="assets/bg.png" alt="Pic" class="userPic">
+            <h1>Coding Studio</h1>
+            <p class="userBio">
+                Hi! I make code tools and cool apps. 
+                If you like my work, please help me out. 
+                Your gifts let me build more stuff for you! 
+                Plus, they keep me fueled up and focused on creating instead of worrying about the bills.
+            </p>
+        </div>
+
+        <div class="rightCard">
+            <div class="cardTitle">
+                <i class="fa-solid fa-code titleIcon"></i> Back the work
+            </div>
+            
+            <ul class="perkList">
+                <li><i class="fa-solid fa-laptop-code iconTeal"></i> Build cooler tools</li>
+                <li><i class="fa-solid fa-server iconRed"></i> Keep servers fast</li>
+                <li><i class="fa-solid fa-bolt iconBlue"></i> Fuel more free apps</li>
+                <li><i class="fa-solid fa-mug-hot iconOrange"></i> Survive another day of coding</li>
+            </ul>
+
+            <a href="https://flutterwave.com/pay/msuox8dzbnv2" class="btnLink">
+                Show some love
+            </a>
+
+            <div class="safeLock">
+                <i class="fa-solid fa-lock"></i> Safe site. All cards work.
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        const imgNode = document.getElementById("userImg");
+        
+        const fileList = [
+            "assets/bg.png",
+            "assets/bg.jpg",
+            "assets/bg.jpeg",
+            "7e3b28a8-430e-4fd2-9f60-506101ded2c4.jpeg"
+        ];
+        
+        let tryNum = 0;
+        
+        imgNode.onerror = function() {
+            tryNum++;
+            if (tryNum < fileList.length) {
+                imgNode.src = fileList[tryNum];
+            } else {
+                imgNode.src = "https://via.placeholder.com/220";
+            }
+        };
+    </script>
+</body>
+</html>
