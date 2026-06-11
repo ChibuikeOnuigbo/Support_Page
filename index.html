@@ -6,180 +6,466 @@
     <title>Coding Studio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
         :root {
             --mainCol: #6366f1;
             --hoverCol: #4f46e5;
-            --bgCol: #f8fafc;
-            --cardBg: #ffffff;
-            --textMain: #0f172a;
-            --textMute: #64748b;
-            --lineCol: #e2e8f0;
+            --bgCol: #0d0f1a;
+            --cardBg: rgba(255,255,255,0.04);
+            --cardBorder: rgba(255,255,255,0.08);
+            --textMain: #f1f5f9;
+            --textMute: #94a3b8;
+            --lineCol: rgba(255,255,255,0.07);
         }
 
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
+        /* ── loader ── */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #0d0f1a;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.6rem;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #loader.hide {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-ring {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 2.5px solid rgba(99,102,241,0.2);
+            border-top-color: #6366f1;
+            animation: spin 0.9s linear infinite;
+        }
+
+        .loader-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        /* ── video bg ── */
+        #vBg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        #vBg video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.22;
+            filter: saturate(1.4) hue-rotate(200deg);
+        }
+
+        #vBg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.18) 0%, transparent 70%),
+                linear-gradient(to bottom, rgba(13,15,26,0.3) 0%, rgba(13,15,26,0.85) 100%);
+        }
+
+        /* ── ambient orb ── */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            filter: blur(80px);
+            animation: drift 12s ease-in-out infinite alternate;
+        }
+
+        .orb1 {
+            width: 380px;
+            height: 380px;
+            background: rgba(99,102,241,0.12);
+            top: -60px;
+            left: -80px;
+            animation-duration: 14s;
+        }
+
+        .orb2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(139,92,246,0.1);
+            bottom: -40px;
+            right: -60px;
+            animation-duration: 10s;
+            animation-delay: -4s;
+        }
+
+        @keyframes drift {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(30px, 20px) scale(1.08); }
+        }
+
+        /* ── layout ── */
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bgCol);
             color: var(--textMain);
-            margin: 0;
-            padding: 1.5rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            position: relative;
         }
 
         .mainBox {
-            max-width: 900px;
+            position: relative;
+            z-index: 2;
+            max-width: 920px;
             width: 100%;
             display: flex;
-            flex-wrap: wrap; 
-            gap: 3rem;
+            flex-wrap: wrap;
+            gap: 3.5rem;
             align-items: center;
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
         }
 
+        .mainBox.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── left ── */
         .leftSide {
-            flex: 1 1 300px;
+            flex: 1 1 280px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center; 
+            align-items: center;
             text-align: center;
         }
 
-        .userPic {
-            width: 230px; 
-            height: 230px;
+        /* ring pulse around avatar */
+        .avatarWrap {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin-bottom: 1.6rem;
+        }
+
+        .avatarWrap::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
             border-radius: 50%;
-            background-color: var(--mainCol);
-            margin-bottom: 1.2rem;
+            border: 1.5px solid rgba(99,102,241,0.45);
+            animation: ringPulse 3s ease-in-out infinite;
+        }
+
+        .avatarWrap::after {
+            content: '';
+            position: absolute;
+            inset: -14px;
+            border-radius: 50%;
+            border: 1px solid rgba(99,102,241,0.18);
+            animation: ringPulse 3s ease-in-out infinite 0.6s;
+        }
+
+        @keyframes ringPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50%       { opacity: 1;   transform: scale(1.04); }
+        }
+
+        .userPic {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
             object-fit: cover;
-            object-position: center 15%; 
-            border: 4px solid var(--mainCol);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 6px;
+            object-position: center 15%;
+            border: 3px solid rgba(99,102,241,0.5);
+            background: rgba(99,102,241,0.15);
+            display: block;
+        }
+
+        /* status badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--textMute);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            margin-bottom: 1.1rem;
+            letter-spacing: 0.04em;
+        }
+
+        .badge .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.3; }
         }
 
         h1 {
-            margin: 0 0 0.5rem 0;
-            font-size: 2.2rem;
+            font-size: 2.1rem;
             font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.6rem;
+            background: linear-gradient(135deg, #f1f5f9 30%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .userBio {
             color: var(--textMute);
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-            font-size: 1.05rem;
-            text-align: left; 
+            line-height: 1.7;
+            font-size: 0.97rem;
+            max-width: 300px;
         }
 
+        /* ── right card ── */
         .rightCard {
             flex: 1 1 300px;
-            background-color: var(--cardBg);
-            border: 1px solid var(--lineCol);
-            border-radius: 16px;
-            padding: 2.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            background: var(--cardBg);
+            border: 1px solid var(--cardBorder);
+            border-radius: 20px;
+            padding: 2.4rem;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* card inner glow top */
+        .rightCard::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(99,102,241,0.5), transparent);
         }
 
         .cardTitle {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             font-weight: 600;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.8rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.55rem;
+            color: var(--textMain);
         }
 
         .titleIcon {
             color: var(--mainCol);
         }
 
+        /* perk items */
         .perkList {
             list-style: none;
-            padding: 0;
-            margin: 0 0 2rem 0;
-            color: var(--textMain);
+            margin: 0 0 2rem;
         }
 
         .perkList li {
-            margin-bottom: 1rem;
+            margin-bottom: 1.05rem;
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 0.85rem;
+            font-size: 0.95rem;
             font-weight: 500;
+            color: var(--textMain);
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
 
-        .iconTeal { color: #0f766e; width: 20px; font-size: 1.1rem; text-align: center; }
-        .iconRed { color: #9f1239; width: 20px; font-size: 1.1rem; text-align: center; }
-        .iconBlue { color: #1e3a8a; width: 20px; font-size: 1.1rem; text-align: center; }
-        /* Added a new warm orange color for the coffee/survival icon */
-        .iconOrange { color: #ea580c; width: 20px; font-size: 1.1rem; text-align: center; }
+        .perkList li.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
 
+        .perkList li:nth-child(1) { transition-delay: 0.1s; }
+        .perkList li:nth-child(2) { transition-delay: 0.2s; }
+        .perkList li:nth-child(3) { transition-delay: 0.3s; }
+        .perkList li:nth-child(4) { transition-delay: 0.4s; }
+
+        .iconWrap {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.95rem;
+        }
+
+        .iconTeal  { background: rgba(20,184,166,0.12); color: #2dd4bf; }
+        .iconRed   { background: rgba(244, 63, 94,0.1);  color: #fb7185; }
+        .iconBlue  { background: rgba(99,102,241,0.12);  color: #818cf8; }
+        .iconOrange{ background: rgba(249,115,22,0.12);  color: #fb923c; }
+
+        /* btn */
         .btnLink {
             display: block;
             width: 100%;
             padding: 1rem;
-            background-color: var(--mainCol);
-            color: white;
+            background: var(--mainCol);
+            color: #fff;
             text-align: center;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.2s ease;
+            font-size: 1.05rem;
+            letter-spacing: 0.01em;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.2s ease, transform 0.18s ease, box-shadow 0.2s ease;
+            box-shadow: 0 0 0 0 rgba(99,102,241,0.4);
+        }
+
+        .btnLink::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* ripple */
+        .btnLink .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            transform: scale(0);
+            animation: rippleAnim 0.55s linear;
+            pointer-events: none;
+        }
+
+        @keyframes rippleAnim {
+            to { transform: scale(4); opacity: 0; }
         }
 
         .btnLink:hover {
-            background-color: var(--hoverCol);
+            background: var(--hoverCol);
             transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(99,102,241,0.35);
         }
 
+        .btnLink:active {
+            transform: translateY(0);
+        }
+
+        /* trust line */
         .safeLock {
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--textMute);
-            margin-top: 1.2rem;
+            margin-top: 1.1rem;
+            opacity: 0.75;
         }
 
-        @media (max-width: 768px) {
-            .mainBox {
-                gap: 2rem;
-            }
-            .leftSide {
-                text-align: center;
-                align-items: center;
-            }
-            .userBio {
-                text-align: center;
-            }
-            .rightCard {
-                padding: 1.5rem;
+        /* ── particle canvas ── */
+        #particles {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ── mobile ── */
+        @media (max-width: 680px) {
+            .mainBox { gap: 2.4rem; }
+            .rightCard { padding: 1.8rem 1.4rem; }
+            h1 { font-size: 1.8rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="mainBox">
-        
+    <!-- loader -->
+    <div id="loader">
+        <div class="loader-ring"></div>
+        <span class="loader-text">Loading</span>
+    </div>
+
+    <!-- video background -->
+    <div id="vBg">
+        <video autoplay muted loop playsinline>
+            <!-- abstract code / bokeh free stock — falls back gracefully if missing -->
+            <source src="https://cdn.pixabay.com/video/2016/09/09/5122-183554654_large.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- ambient orbs -->
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+
+    <!-- particle canvas -->
+    <canvas id="particles"></canvas>
+
+    <div class="mainBox" id="mainBox">
+
         <div class="leftSide">
-            <img id="userImg" src="assets/bg.png" alt="Pic" class="userPic">
-            <h1>Coding Studio</h1>
+            <div class="avatarWrap">
+                <img id="userImg" src="assets/bg.png" alt="Coding Studio" class="userPic">
+            </div>
+          <span class="badge">Have an idea? I'm listening.</span>
+          <a style="color: white;text-decoration: none;margin-top: -10px;" href="mailto:studiocoding09@gmail.com" class="emailTag">studiocoding09@gmail.com</a>
+            <h1 style="margin-top: 10px;">Coding Studio</h1>
             <p class="userBio">
-                Hi! I make code tools and cool apps. 
-                If you like my work, please help me out. 
-                Your gifts let me build more stuff for you! 
-                Plus, they keep me fueled up and focused on creating instead of worrying about the bills.
+                I build code tools and apps people use daily.
+                Your gift keeps the servers up, the work free,
+                and me fueled to build more.
             </p>
         </div>
 
@@ -187,45 +473,147 @@
             <div class="cardTitle">
                 <i class="fa-solid fa-code titleIcon"></i> Back the work
             </div>
-            
-            <ul class="perkList">
-                <li><i class="fa-solid fa-laptop-code iconTeal"></i> Build cooler tools</li>
-                <li><i class="fa-solid fa-server iconRed"></i> Keep servers fast</li>
-                <li><i class="fa-solid fa-bolt iconBlue"></i> Fuel more free apps</li>
-                <li><i class="fa-solid fa-mug-hot iconOrange"></i> Survive another day of coding</li>
+
+            <ul class="perkList" id="perkList">
+                <li>
+                    <span class="iconWrap iconTeal"><i class="fa-solid fa-laptop-code"></i></span>
+                    Cooler tools get built
+                </li>
+                <li>
+                    <span class="iconWrap iconRed"><i class="fa-solid fa-server"></i></span>
+                    Servers stay fast and free
+                </li>
+                <li>
+                    <span class="iconWrap iconBlue"><i class="fa-solid fa-bolt"></i></span>
+                    More apps stay free
+                </li>
+                <li>
+                    <span class="iconWrap iconOrange"><i class="fa-solid fa-mug-hot"></i></span>
+                    I survive another day coding
+                </li>
             </ul>
 
-            <a href="https://flutterwave.com/pay/msuox8dzbnv2" class="btnLink">
-                Show some love
+            <a href="https://flutterwave.com/pay/msuox8dzbnv2" class="btnLink" id="payBtn">
+                Show some love ❤️
             </a>
 
             <div class="safeLock">
-                <i class="fa-solid fa-lock"></i> Safe site. All cards work.
+                <i class="fa-solid fa-lock"></i> Safe checkout &mdash; all cards work
             </div>
         </div>
-        
+
     </div>
 
     <script>
-        const imgNode = document.getElementById("userImg");
-        
-        const fileList = [
-            "assets/bg.png",
-            "assets/bg.jpg",
-            "assets/bg.jpeg",
-            "7e3b28a8-430e-4fd2-9f60-506101ded2c4.jpeg"
-        ];
-        
-        let tryNum = 0;
-        
-        imgNode.onerror = function() {
-            tryNum++;
-            if (tryNum < fileList.length) {
-                imgNode.src = fileList[tryNum];
-            } else {
-                imgNode.src = "https://via.placeholder.com/220";
+    (function() {
+
+        /* ── image fallback ── */
+        const img = document.getElementById('userImg');
+        const fallbacks = ['assets/bg.jpg','assets/bg.jpeg','7e3b28a8-430e-4fd2-9f60-506101ded2c4.jpeg','https://via.placeholder.com/220'];
+        let fi = 0;
+        img.onerror = () => { img.src = fallbacks[fi++] || 'https://via.placeholder.com/220'; };
+
+        /* ── loader out ── */
+        const loader  = document.getElementById('loader');
+        const mainBox = document.getElementById('mainBox');
+
+        function reveal() {
+            loader.classList.add('hide');
+            mainBox.classList.add('show');
+            // stagger perk items
+            document.querySelectorAll('#perkList li').forEach(li => li.classList.add('show'));
+        }
+
+        window.addEventListener('load', () => setTimeout(reveal, 600));
+        setTimeout(reveal, 2200); // hard cap
+
+        /* ── btn ripple ── */
+        document.getElementById('payBtn').addEventListener('click', function(e) {
+            const r = document.createElement('span');
+            r.className = 'ripple';
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+            this.appendChild(r);
+            setTimeout(() => r.remove(), 600);
+        });
+
+        /* ── subtle floating particles ── */
+        const canvas = document.getElementById('particles');
+        const ctx    = canvas.getContext('2d');
+        let W, H, pts = [];
+
+        function resize() {
+            W = canvas.width  = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+
+        function init() {
+            pts = [];
+            const count = Math.min(55, Math.floor(W * H / 22000));
+            for (let i = 0; i < count; i++) {
+                pts.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    r: Math.random() * 1.4 + 0.4,
+                    vx: (Math.random() - 0.5) * 0.18,
+                    vy: (Math.random() - 0.5) * 0.18,
+                    a: Math.random() * 0.5 + 0.1
+                });
             }
-        };
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+            pts.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(165,180,252,${p.a})`;
+                ctx.fill();
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0) p.x = W;
+                if (p.x > W) p.x = 0;
+                if (p.y < 0) p.y = H;
+                if (p.y > H) p.y = 0;
+            });
+            // draw faint lines between close pts
+            for (let i = 0; i < pts.length; i++) {
+                for (let j = i + 1; j < pts.length; j++) {
+                    const dx = pts[i].x - pts[j].x;
+                    const dy = pts[i].y - pts[j].y;
+                    const d  = Math.sqrt(dx*dx + dy*dy);
+                    if (d < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(pts[i].x, pts[i].y);
+                        ctx.lineTo(pts[j].x, pts[j].y);
+                        ctx.strokeStyle = `rgba(99,102,241,${0.07 * (1 - d/120)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('resize', () => { resize(); init(); });
+        resize(); init(); draw();
+
+        /* ── card hover tilt ── */
+        const card = document.querySelector('.rightCard');
+        card.addEventListener('mousemove', e => {
+            const r  = card.getBoundingClientRect();
+            const cx = r.left + r.width  / 2;
+            const cy = r.top  + r.height / 2;
+            const rx = ((e.clientY - cy) / (r.height / 2)) * 3.5;
+            const ry = ((e.clientX - cx) / (r.width  / 2)) * -3.5;
+            card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
+
+    })();
     </script>
 </body>
 </html>
