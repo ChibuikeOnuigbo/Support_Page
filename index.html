@@ -8,85 +8,50 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        :root {
-            --mainCol: #6366f1;
-            --hoverCol: #4f46e5;
-            --bgCol: #0d0f1a;
-            --cardBg: rgba(255,255,255,0.04);
-            --cardBorder: rgba(255,255,255,0.08);
-            --textMain: #f1f5f9;
-            --textMute: #94a3b8;
-            --lineCol: rgba(255,255,255,0.07);
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* ── loader ── */
-        #loader {
-            position: fixed;
-            inset: 0;
-            background: #0d0f1a;
-            z-index: 100;
+        /* ── theme layers ── */
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 1.6rem;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
+            padding: 2rem 1.5rem;
+            position: relative;
+            transition: background-color 0.9s ease, color 0.9s ease;
         }
 
-        #loader.hide {
-            opacity: 0;
-            visibility: hidden;
+        /* LIGHT */
+        body.theme-light {
+            background-color: #f8fafc;
+            color: #0f172a;
         }
 
-        .loader-ring {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            border: 2.5px solid rgba(99,102,241,0.2);
-            border-top-color: #6366f1;
-            animation: spin 0.9s linear infinite;
+        /* DARK */
+        body.theme-dark {
+            background-color: #0d0f1a;
+            color: #f1f5f9;
         }
 
-        .loader-text {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
-            letter-spacing: 0.15em;
-            color: rgba(255,255,255,0.3);
-            text-transform: uppercase;
-            animation: pulse 1.4s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.8; }
-        }
-
-        /* ── video bg ── */
+        /* ── video bg (dark only) ── */
         #vBg {
             position: fixed;
             inset: 0;
             z-index: 0;
             overflow: hidden;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+            pointer-events: none;
         }
+        body.theme-dark #vBg { opacity: 1; }
 
         #vBg video {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             object-fit: cover;
             opacity: 0.22;
             filter: saturate(1.4) hue-rotate(200deg);
         }
-
         #vBg::after {
             content: '';
             position: absolute;
@@ -96,53 +61,27 @@
                 linear-gradient(to bottom, rgba(13,15,26,0.3) 0%, rgba(13,15,26,0.85) 100%);
         }
 
-        /* ── ambient orb ── */
+        /* ── orbs (dark only) ── */
         .orb {
             position: fixed;
             border-radius: 50%;
             pointer-events: none;
             z-index: 1;
             filter: blur(80px);
+            opacity: 0;
+            transition: opacity 1.2s ease;
             animation: drift 12s ease-in-out infinite alternate;
         }
+        body.theme-dark .orb { opacity: 1; }
+        .orb1 { width:380px;height:380px;background:rgba(99,102,241,0.12);top:-60px;left:-80px;animation-duration:14s; }
+        .orb2 { width:300px;height:300px;background:rgba(139,92,246,0.1);bottom:-40px;right:-60px;animation-duration:10s;animation-delay:-4s; }
+        @keyframes drift { from{transform:translate(0,0) scale(1)} to{transform:translate(30px,20px) scale(1.08)} }
 
-        .orb1 {
-            width: 380px;
-            height: 380px;
-            background: rgba(99,102,241,0.12);
-            top: -60px;
-            left: -80px;
-            animation-duration: 14s;
-        }
+        /* ── particle canvas ── */
+        #particles { position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease; }
+        body.theme-dark #particles { opacity:1; }
 
-        .orb2 {
-            width: 300px;
-            height: 300px;
-            background: rgba(139,92,246,0.1);
-            bottom: -40px;
-            right: -60px;
-            animation-duration: 10s;
-            animation-delay: -4s;
-        }
-
-        @keyframes drift {
-            from { transform: translate(0,0) scale(1); }
-            to   { transform: translate(30px, 20px) scale(1.08); }
-        }
-
-        /* ── layout ── */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bgCol);
-            color: var(--textMain);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem 1.5rem;
-            position: relative;
-        }
-
+        /* ── main layout ── */
         .mainBox {
             position: relative;
             z-index: 2;
@@ -153,16 +92,12 @@
             gap: 3.5rem;
             align-items: center;
             opacity: 0;
-            transform: translateY(24px);
+            transform: translateY(20px);
             transition: opacity 0.7s ease, transform 0.7s ease;
         }
+        .mainBox.show { opacity:1; transform:translateY(0); }
 
-        .mainBox.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* ── left ── */
+        /* ── left side ── */
         .leftSide {
             flex: 1 1 280px;
             display: flex;
@@ -171,35 +106,34 @@
             text-align: center;
         }
 
-        /* ring pulse around avatar */
+        /* avatar — light mode: simple border */
         .avatarWrap {
             position: relative;
             width: 220px;
             height: 220px;
-            margin-bottom: 1.6rem;
+            margin-bottom: 1.4rem;
         }
-
-        .avatarWrap::before {
+        .avatarWrap::before, .avatarWrap::after {
             content: '';
             position: absolute;
-            inset: -6px;
             border-radius: 50%;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        body.theme-dark .avatarWrap::before {
+            inset: -6px;
             border: 1.5px solid rgba(99,102,241,0.45);
             animation: ringPulse 3s ease-in-out infinite;
+            opacity: 1;
         }
-
-        .avatarWrap::after {
-            content: '';
-            position: absolute;
+        body.theme-dark .avatarWrap::after {
             inset: -14px;
-            border-radius: 50%;
             border: 1px solid rgba(99,102,241,0.18);
             animation: ringPulse 3s ease-in-out infinite 0.6s;
+            opacity: 1;
         }
-
         @keyframes ringPulse {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50%       { opacity: 1;   transform: scale(1.04); }
+            0%,100%{opacity:0.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.04)}
         }
 
         .userPic {
@@ -208,45 +142,64 @@
             border-radius: 50%;
             object-fit: cover;
             object-position: center 15%;
+            display: block;
+            transition: border-color 0.9s ease, box-shadow 0.9s ease, background 0.9s ease;
+        }
+        body.theme-light .userPic {
+            border: 4px solid #6366f1;
+            box-shadow: 0 4px 16px rgba(99,102,241,0.18);
+            background: #e0e7ff;
+        }
+        body.theme-dark .userPic {
             border: 3px solid rgba(99,102,241,0.5);
             background: rgba(99,102,241,0.15);
-            display: block;
         }
 
-        /* status badge */
+        /* badge */
         .badge {
             display: inline-flex;
             align-items: center;
             gap: 0.45rem;
             font-size: 0.75rem;
             font-weight: 500;
-            color: var(--textMute);
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.08);
             padding: 0.35rem 0.9rem;
             border-radius: 999px;
-            margin-bottom: 1.1rem;
+            margin-bottom: 0.7rem;
             letter-spacing: 0.04em;
+            transition: background 0.9s ease, border-color 0.9s ease, color 0.9s ease;
         }
+        body.theme-light .badge { background:#f1f5f9;border:1px solid #e2e8f0;color:#64748b; }
+        body.theme-dark  .badge { background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#94a3b8; }
 
         .badge .dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #22c55e;
+            width:7px;height:7px;border-radius:50%;background:#22c55e;
             animation: blink 2s ease-in-out infinite;
         }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50%       { opacity: 0.3; }
+        .emailTag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            transition: color 0.2s ease;
         }
+        body.theme-light .emailTag { color:#6366f1; }
+        body.theme-dark  .emailTag { color:#818cf8; }
+        .emailTag i { font-size: 0.72rem; }
+        .emailTag:hover { opacity: 0.75; }
 
         h1 {
             font-size: 2.1rem;
             font-weight: 700;
             letter-spacing: -0.02em;
             margin-bottom: 0.6rem;
+            transition: color 0.9s ease;
+        }
+        body.theme-light h1 { color: #0f172a; }
+        body.theme-dark  h1 {
             background: linear-gradient(135deg, #f1f5f9 30%, #a5b4fc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -254,34 +207,41 @@
         }
 
         .userBio {
-            color: var(--textMute);
-            line-height: 1.7;
+            /* line-height: 1.7; */
+            text-align: left;
             font-size: 0.97rem;
             max-width: 300px;
+            transition: color 0.9s ease;
         }
+        body.theme-light .userBio { color:#64748b; }
+        body.theme-dark  .userBio { color:#94a3b8; }
 
         /* ── right card ── */
         .rightCard {
             flex: 1 1 300px;
-            background: var(--cardBg);
-            border: 1px solid var(--cardBorder);
             border-radius: 20px;
             padding: 2.4rem;
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
             position: relative;
             overflow: hidden;
+            transition: background 0.9s ease, border-color 0.9s ease, box-shadow 0.9s ease;
         }
-
-        /* card inner glow top */
-        .rightCard::before {
+        body.theme-light .rightCard {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 30px -4px rgba(0,0,0,0.07);
+        }
+        body.theme-dark .rightCard {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+        body.theme-dark .rightCard::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 50%;
+            top: 0; left: 50%;
             transform: translateX(-50%);
-            width: 60%;
-            height: 1px;
+            width: 60%; height: 1px;
             background: linear-gradient(to right, transparent, rgba(99,102,241,0.5), transparent);
         }
 
@@ -292,19 +252,14 @@
             display: flex;
             align-items: center;
             gap: 0.55rem;
-            color: var(--textMain);
+            transition: color 0.9s ease;
         }
+        body.theme-light .cardTitle { color:#0f172a; }
+        body.theme-dark  .cardTitle { color:#f1f5f9; }
+        .titleIcon { color: #6366f1; }
 
-        .titleIcon {
-            color: var(--mainCol);
-        }
-
-        /* perk items */
-        .perkList {
-            list-style: none;
-            margin: 0 0 2rem;
-        }
-
+        /* perks */
+        .perkList { list-style:none; margin:0 0 2rem; }
         .perkList li {
             margin-bottom: 1.05rem;
             display: flex;
@@ -312,125 +267,191 @@
             gap: 0.85rem;
             font-size: 0.95rem;
             font-weight: 500;
-            color: var(--textMain);
             opacity: 0;
             transform: translateX(-10px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
+            transition: opacity 0.4s ease, transform 0.4s ease, color 0.9s ease;
         }
-
-        .perkList li.show {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .perkList li:nth-child(1) { transition-delay: 0.1s; }
-        .perkList li:nth-child(2) { transition-delay: 0.2s; }
-        .perkList li:nth-child(3) { transition-delay: 0.3s; }
-        .perkList li:nth-child(4) { transition-delay: 0.4s; }
+        .perkList li.show { opacity:1; transform:translateX(0); }
+        .perkList li:nth-child(1){transition-delay:0.1s}
+        .perkList li:nth-child(2){transition-delay:0.2s}
+        .perkList li:nth-child(3){transition-delay:0.3s}
+        .perkList li:nth-child(4){transition-delay:0.4s}
+        body.theme-light .perkList li { color:#0f172a; }
+        body.theme-dark  .perkList li { color:#f1f5f9; }
 
         .iconWrap {
-            width: 34px;
-            height: 34px;
-            border-radius: 9px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 0.95rem;
+            width:34px;height:34px;border-radius:9px;
+            display:flex;align-items:center;justify-content:center;
+            flex-shrink:0;font-size:0.95rem;
         }
-
-        .iconTeal  { background: rgba(20,184,166,0.12); color: #2dd4bf; }
-        .iconRed   { background: rgba(244, 63, 94,0.1);  color: #fb7185; }
-        .iconBlue  { background: rgba(99,102,241,0.12);  color: #818cf8; }
-        .iconOrange{ background: rgba(249,115,22,0.12);  color: #fb923c; }
+        .iconTeal  {background:rgba(20,184,166,0.12);color:#0f766e}
+        .iconRed   {background:rgba(244,63,94,0.1);color:#be123c}
+        .iconBlue  {background:rgba(99,102,241,0.12);color:#4f46e5}
+        .iconOrange{background:rgba(249,115,22,0.12);color:#ea580c}
+        body.theme-dark .iconTeal  {color:#2dd4bf}
+        body.theme-dark .iconRed   {color:#fb7185}
+        body.theme-dark .iconBlue  {color:#818cf8}
+        body.theme-dark .iconOrange{color:#fb923c}
 
         /* btn */
         .btnLink {
-            display: block;
-            width: 100%;
-            padding: 1rem;
-            background: var(--mainCol);
-            color: #fff;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1.05rem;
-            letter-spacing: 0.01em;
-            position: relative;
-            overflow: hidden;
-            transition: background 0.2s ease, transform 0.18s ease, box-shadow 0.2s ease;
-            box-shadow: 0 0 0 0 rgba(99,102,241,0.4);
+            display:block;width:100%;padding:1rem;
+            background:#6366f1;color:#fff;
+            text-align:center;text-decoration:none;
+            border-radius:12px;font-weight:600;font-size:1.05rem;
+            position:relative;overflow:hidden;
+            transition:background 0.2s ease,transform 0.18s ease,box-shadow 0.2s ease;
         }
-
         .btnLink::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
-            pointer-events: none;
+            content:'';position:absolute;inset:0;
+            background:linear-gradient(135deg,rgba(255,255,255,0.12) 0%,transparent 60%);
+            pointer-events:none;
         }
-
-        /* ripple */
         .btnLink .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.25);
-            transform: scale(0);
-            animation: rippleAnim 0.55s linear;
-            pointer-events: none;
+            position:absolute;border-radius:50%;
+            background:rgba(255,255,255,0.25);
+            transform:scale(0);animation:rippleAnim 0.55s linear;
+            pointer-events:none;
         }
+        @keyframes rippleAnim { to{transform:scale(4);opacity:0} }
+        .btnLink:hover { background:#4f46e5;transform:translateY(-2px);box-shadow:0 8px 28px rgba(99,102,241,0.35); }
+        .btnLink:active { transform:translateY(0); }
 
-        @keyframes rippleAnim {
-            to { transform: scale(4); opacity: 0; }
-        }
-
-        .btnLink:hover {
-            background: var(--hoverCol);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(99,102,241,0.35);
-        }
-
-        .btnLink:active {
-            transform: translateY(0);
-        }
-
-        /* trust line */
         .safeLock {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.8rem;
-            color: var(--textMute);
-            margin-top: 1.1rem;
-            opacity: 0.75;
+            display:flex;justify-content:center;align-items:center;
+            gap:0.5rem;font-size:0.8rem;margin-top:1.1rem;opacity:0.75;
+            transition: color 0.9s ease;
         }
+        body.theme-light .safeLock { color:#64748b; }
+        body.theme-dark  .safeLock { color:#94a3b8; }
 
-        /* ── particle canvas ── */
-        #particles {
+        /* ── theme chooser overlay ── */
+        #chooser {
             position: fixed;
             inset: 0;
-            z-index: 1;
+            z-index: 50;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 3rem;
             pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #chooser.show { opacity:1; pointer-events:all; }
+
+        .chooserBox {
+            background: rgba(15,23,42,0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 1.6rem 2rem;
+            text-align: center;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.4);
         }
 
-        /* ── mobile ── */
-        @media (max-width: 680px) {
-            .mainBox { gap: 2.4rem; }
-            .rightCard { padding: 1.8rem 1.4rem; }
-            h1 { font-size: 1.8rem; }
+        .chooserLabel {
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 0.7rem;
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
+        .chooserQ {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 1.2rem;
+        }
+
+        .chooserBtns {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .cBtn {
+            flex: 1;
+            padding: 0.65rem 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.12);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.15s ease;
+        }
+        .cBtn.light { background:#f8fafc; color:#0f172a; }
+        .cBtn.light:hover { background:#e2e8f0; transform:translateY(-1px); }
+        .cBtn.dark  { background:rgba(99,102,241,0.15); color:#a5b4fc; border-color:rgba(99,102,241,0.3); }
+        .cBtn.dark:hover  { background:rgba(99,102,241,0.28); transform:translateY(-1px); }
+
+        /* timer ring */
+        .timerWrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.35);
+        }
+        #timerNum { font-weight:600; color:rgba(255,255,255,0.55); min-width:10px; }
+
+        .timerBar {
+            width: 100%;
+            height: 2px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2px;
+            margin-bottom: 0.8rem;
+            overflow: hidden;
+        }
+        .timerFill {
+            height: 100%;
+            width: 100%;
+            background: #6366f1;
+            border-radius: 2px;
+            transform-origin: left;
+            transition: transform 0.1s linear;
+        }
+
+        /* ── loader ── */
+        #loader {
+            position:fixed;inset:0;background:#f8fafc;
+            z-index:100;display:flex;flex-direction:column;
+            align-items:center;justify-content:center;gap:1.6rem;
+            transition:opacity 0.5s ease,visibility 0.5s ease;
+        }
+        #loader.hide { opacity:0;visibility:hidden; }
+        .loader-ring {
+            width:52px;height:52px;border-radius:50%;
+            border:2.5px solid rgba(99,102,241,0.2);
+            border-top-color:#6366f1;
+            animation:spin 0.9s linear infinite;
+        }
+        .loader-text {
+            font-family:'Inter',sans-serif;font-size:0.82rem;
+            letter-spacing:0.15em;color:#94a3b8;text-transform:uppercase;
+            animation:fpulse 1.4s ease-in-out infinite;
+        }
+        @keyframes spin   { to{transform:rotate(360deg)} }
+        @keyframes fpulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+        @media (max-width:680px) {
+            .mainBox{gap:2.4rem}
+            .rightCard{padding:1.8rem 1.4rem}
+            h1{font-size:1.8rem}
+        }
+        @media (prefers-reduced-motion:reduce) {
+            *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
         }
     </style>
 </head>
-<body>
+<body class="theme-light">
 
     <!-- loader -->
     <div id="loader">
@@ -438,34 +459,34 @@
         <span class="loader-text">Loading</span>
     </div>
 
-    <!-- video background -->
+    <!-- video bg -->
     <div id="vBg">
         <video autoplay muted loop playsinline>
-            <!-- abstract code / bokeh free stock — falls back gracefully if missing -->
             <source src="https://cdn.pixabay.com/video/2016/09/09/5122-183554654_large.mp4" type="video/mp4">
         </video>
     </div>
 
-    <!-- ambient orbs -->
     <div class="orb orb1"></div>
     <div class="orb orb2"></div>
-
-    <!-- particle canvas -->
     <canvas id="particles"></canvas>
 
+    <!-- main content -->
     <div class="mainBox" id="mainBox">
 
         <div class="leftSide">
             <div class="avatarWrap">
                 <img id="userImg" src="assets/bg.png" alt="Coding Studio" class="userPic">
             </div>
-          <span class="badge">Have an idea? I'm listening.</span>
-          <a style="color: white;text-decoration: none;margin-top: -10px;" href="mailto:studiocoding09@gmail.com" class="emailTag">studiocoding09@gmail.com</a>
-            <h1 style="margin-top: 10px;">Coding Studio</h1>
+            <span class="badge"><span class="dot"></span>Got an idea? Send an email.</span>
+            <a href="mailto:studiocoding09@gmail.com" class="emailTag">
+                <i class="fa-solid fa-envelope"></i>studiocoding09@gmail.com
+            </a>
+            <h1>Coding Studio</h1>
             <p class="userBio">
-                I build code tools and apps people use daily.
-                Your gift keeps the servers up, the work free,
-                and me fueled to build more.
+                Hi! I make code tools and cool apps. 
+                If you like my work, please help me out. 
+                Your gifts let me build more stuff for you! 
+                Plus, they keep me fueled up and focused on creating instead of worrying about the bills.
             </p>
         </div>
 
@@ -473,30 +494,15 @@
             <div class="cardTitle">
                 <i class="fa-solid fa-code titleIcon"></i> Back the work
             </div>
-
             <ul class="perkList" id="perkList">
-                <li>
-                    <span class="iconWrap iconTeal"><i class="fa-solid fa-laptop-code"></i></span>
-                    Cooler tools get built
-                </li>
-                <li>
-                    <span class="iconWrap iconRed"><i class="fa-solid fa-server"></i></span>
-                    Servers stay fast and free
-                </li>
-                <li>
-                    <span class="iconWrap iconBlue"><i class="fa-solid fa-bolt"></i></span>
-                    More apps stay free
-                </li>
-                <li>
-                    <span class="iconWrap iconOrange"><i class="fa-solid fa-mug-hot"></i></span>
-                    I survive another day coding
-                </li>
+                <li><span class="iconWrap iconTeal"><i class="fa-solid fa-laptop-code"></i></span>Cooler tools get built</li>
+                <li><span class="iconWrap iconRed"><i class="fa-solid fa-server"></i></span>Servers stay fast and free</li>
+                <li><span class="iconWrap iconBlue"><i class="fa-solid fa-bolt"></i></span>More apps stay free</li>
+                <li><span class="iconWrap iconOrange"><i class="fa-solid fa-mug-hot"></i></span>I survive another day coding</li>
             </ul>
-
             <a href="https://flutterwave.com/pay/msuox8dzbnv2" class="btnLink" id="payBtn">
                 Show some love ❤️
             </a>
-
             <div class="safeLock">
                 <i class="fa-solid fa-lock"></i> Safe checkout &mdash; all cards work
             </div>
@@ -504,30 +510,93 @@
 
     </div>
 
-    <script>
-    (function() {
+    <!-- theme chooser -->
+    <div id="chooser">
+        <div class="chooserBox">
+            <p class="chooserLabel">Pick your vibe</p>
+            <p class="chooserQ">Which look do you prefer?</p>
+            <div class="timerBar"><div class="timerFill" id="timerFill"></div></div>
+            <div class="chooserBtns">
+                <button class="cBtn light" onclick="pickTheme('light')">Light</button>
+                <button class="cBtn dark"  onclick="pickTheme('dark')">Dark</button>
+            </div>
+            <div class="timerWrap">
+                <span>Auto-pick in</span>
+                <span id="timerNum">8</span>
+                <span>sec</span>
+            </div>
+        </div>
+    </div>
 
-        /* ── image fallback ── */
+    <script>
+    (function(){
+
+        /* image fallback */
         const img = document.getElementById('userImg');
         const fallbacks = ['assets/bg.jpg','assets/bg.jpeg','7e3b28a8-430e-4fd2-9f60-506101ded2c4.jpeg','https://via.placeholder.com/220'];
         let fi = 0;
         img.onerror = () => { img.src = fallbacks[fi++] || 'https://via.placeholder.com/220'; };
 
-        /* ── loader out ── */
-        const loader  = document.getElementById('loader');
-        const mainBox = document.getElementById('mainBox');
+        const loader   = document.getElementById('loader');
+        const mainBox  = document.getElementById('mainBox');
+        const chooser  = document.getElementById('chooser');
+        const timerFill= document.getElementById('timerFill');
+        const timerNum = document.getElementById('timerNum');
+        const body     = document.body;
 
-        function reveal() {
+        let timerInt, chosen = false;
+
+        /* theme switch */
+        window.pickTheme = function(t) {
+            if (chosen) return;
+            chosen = true;
+            clearInterval(timerInt);
+            chooser.classList.remove('show');
+            body.classList.remove('theme-light','theme-dark');
+            body.classList.add('theme-' + t);
+        };
+
+        /* reveal sequence */
+        function startSequence() {
+            /* 1. hide loader, show light version */
             loader.classList.add('hide');
             mainBox.classList.add('show');
-            // stagger perk items
             document.querySelectorAll('#perkList li').forEach(li => li.classList.add('show'));
+
+            /* 2. after 1.8s crossfade to dark */
+            setTimeout(() => {
+                body.classList.remove('theme-light');
+                body.classList.add('theme-dark');
+
+                /* 3. after dark settles (1s) show chooser */
+                setTimeout(showChooser, 1000);
+            }, 1800);
         }
 
-        window.addEventListener('load', () => setTimeout(reveal, 600));
-        setTimeout(reveal, 2200); // hard cap
+        function showChooser() {
+            chooser.classList.add('show');
+            let secs = 8;
+            timerNum.textContent = secs;
+            timerFill.style.transform = 'scaleX(1)';
 
-        /* ── btn ripple ── */
+            timerInt = setInterval(() => {
+                secs--;
+                timerNum.textContent = secs;
+                timerFill.style.transform = `scaleX(${secs / 8})`;
+                if (secs <= 0) {
+                    clearInterval(timerInt);
+                    if (!chosen) {
+                        /* random pick */
+                        pickTheme(Math.random() < 0.5 ? 'light' : 'dark');
+                    }
+                }
+            }, 1000);
+        }
+
+        window.addEventListener('load', () => setTimeout(startSequence, 500));
+        setTimeout(startSequence, 2000); /* hard cap */
+
+        /* btn ripple */
         document.getElementById('payBtn').addEventListener('click', function(e) {
             const r = document.createElement('span');
             r.className = 'ripple';
@@ -535,83 +604,64 @@
             const size = Math.max(rect.width, rect.height);
             r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
             this.appendChild(r);
-            setTimeout(() => r.remove(), 600);
+            setTimeout(()=>r.remove(), 600);
         });
 
-        /* ── subtle floating particles ── */
+        /* particles */
         const canvas = document.getElementById('particles');
         const ctx    = canvas.getContext('2d');
-        let W, H, pts = [];
+        let W, H, pts=[];
 
-        function resize() {
-            W = canvas.width  = window.innerWidth;
-            H = canvas.height = window.innerHeight;
-        }
-
-        function init() {
-            pts = [];
-            const count = Math.min(55, Math.floor(W * H / 22000));
-            for (let i = 0; i < count; i++) {
-                pts.push({
-                    x: Math.random() * W,
-                    y: Math.random() * H,
-                    r: Math.random() * 1.4 + 0.4,
-                    vx: (Math.random() - 0.5) * 0.18,
-                    vy: (Math.random() - 0.5) * 0.18,
-                    a: Math.random() * 0.5 + 0.1
-                });
-            }
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, W, H);
-            pts.forEach(p => {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(165,180,252,${p.a})`;
-                ctx.fill();
-                p.x += p.vx;
-                p.y += p.vy;
-                if (p.x < 0) p.x = W;
-                if (p.x > W) p.x = 0;
-                if (p.y < 0) p.y = H;
-                if (p.y > H) p.y = 0;
+        function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+        function init(){
+            pts=[];
+            const n = Math.min(55, Math.floor(W*H/22000));
+            for(let i=0;i<n;i++) pts.push({
+                x:Math.random()*W, y:Math.random()*H,
+                r:Math.random()*1.4+0.4,
+                vx:(Math.random()-0.5)*0.18, vy:(Math.random()-0.5)*0.18,
+                a:Math.random()*0.5+0.1
             });
-            // draw faint lines between close pts
-            for (let i = 0; i < pts.length; i++) {
-                for (let j = i + 1; j < pts.length; j++) {
-                    const dx = pts[i].x - pts[j].x;
-                    const dy = pts[i].y - pts[j].y;
-                    const d  = Math.sqrt(dx*dx + dy*dy);
-                    if (d < 120) {
+        }
+        function draw(){
+            ctx.clearRect(0,0,W,H);
+            pts.forEach(p=>{
+                ctx.beginPath();
+                ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+                ctx.fillStyle=`rgba(165,180,252,${p.a})`;
+                ctx.fill();
+                p.x+=p.vx; p.y+=p.vy;
+                if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+                if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+            });
+            for(let i=0;i<pts.length;i++){
+                for(let j=i+1;j<pts.length;j++){
+                    const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+                    const d=Math.sqrt(dx*dx+dy*dy);
+                    if(d<120){
                         ctx.beginPath();
-                        ctx.moveTo(pts[i].x, pts[i].y);
-                        ctx.lineTo(pts[j].x, pts[j].y);
-                        ctx.strokeStyle = `rgba(99,102,241,${0.07 * (1 - d/120)})`;
-                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(pts[i].x,pts[i].y);
+                        ctx.lineTo(pts[j].x,pts[j].y);
+                        ctx.strokeStyle=`rgba(99,102,241,${0.07*(1-d/120)})`;
+                        ctx.lineWidth=0.5;
                         ctx.stroke();
                     }
                 }
             }
             requestAnimationFrame(draw);
         }
-
-        window.addEventListener('resize', () => { resize(); init(); });
+        window.addEventListener('resize',()=>{resize();init();});
         resize(); init(); draw();
 
-        /* ── card hover tilt ── */
+        /* card tilt */
         const card = document.querySelector('.rightCard');
-        card.addEventListener('mousemove', e => {
-            const r  = card.getBoundingClientRect();
-            const cx = r.left + r.width  / 2;
-            const cy = r.top  + r.height / 2;
-            const rx = ((e.clientY - cy) / (r.height / 2)) * 3.5;
-            const ry = ((e.clientX - cx) / (r.width  / 2)) * -3.5;
-            card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
+        card.addEventListener('mousemove', e=>{
+            const r=card.getBoundingClientRect();
+            const rx=((e.clientY-(r.top+r.height/2))/(r.height/2))*3.5;
+            const ry=((e.clientX-(r.left+r.width/2))/(r.width/2))*-3.5;
+            card.style.transform=`perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
         });
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = '';
-        });
+        card.addEventListener('mouseleave',()=>{ card.style.transform=''; });
 
     })();
     </script>
